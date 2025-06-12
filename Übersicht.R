@@ -1,23 +1,20 @@
-library(ggplot2)
-library(dplyr)
-library(tidyverse)
 
-# Metriken berechnen
-V1_stats <- bank.additional.full %>%
+# # Übersicht Alter
+# Metriken berechnen für Alter
+age_stats <- bank.additional.full %>%
   summarise(
-    mean = mean(V1),
-    median = median(V1),
-    q25 = quantile(V1, 0.25),
-    q75 = quantile(V1, 0.75)
+    mean = mean(age, na.rm = TRUE),
+    median = median(age, na.rm = TRUE),
+    q25 = quantile(age, 0.25, na.rm = TRUE),
+    q75 = quantile(age, 0.75, na.rm = TRUE)
   ) %>%
   pivot_longer(everything(), names_to = "type", values_to = "value")
 
 # Plot mit Legende
-ggplot(bank.full, aes(x = V1)) +
+ggplot(bank.additional.full, aes(x = age)) +
   geom_histogram(bins = 30, fill = "#4C78A8", color = "white", alpha = 0.85) +
   
-  # Vertikale Linien mit Farben & Legende
-  geom_vline(data = V1_stats, aes(xintercept = value, color = type, linetype = type), size = 1.2) +
+  geom_vline(data = age_stats, aes(xintercept = value, color = type, linetype = type), size = 1.2) +
   
   scale_color_manual(
     name = "Statistik",
@@ -65,3 +62,83 @@ ggplot(bank.full, aes(x = V1)) +
     legend.position = "top",
     legend.title = element_text(face = "bold")
   )
+
+# Verteilung der Berufe
+bank.additional.full %>%
+  count(job) %>%
+  ggplot(aes(x = fct_reorder(job, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung der Berufe",
+    x = "Beruf",
+    y = "Anzahl"
+  ) +
+  theme_minimal()
+
+# Verteilung des Familienstands
+bank.additional.full %>%
+  count(marital) %>%
+  ggplot(aes(x = fct_reorder(marital, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung des Familienstands",
+    x = "Familienstand",
+    y = "Anzahl"
+  ) +
+  theme_minimal()
+
+# Übersicht Education
+
+bank.additional.full %>%
+  count(education) %>%
+  ggplot(aes(x = fct_reorder(education, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung des Bildungsstands",
+    x = "Bildungsstand",
+    y = "Anzahl"
+  ) +
+  theme_minimal()
+
+# Verteilung des Kreditstatus
+bank.additional.full %>%
+  count(default) %>%
+  ggplot(aes(x = fct_reorder(default, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung des Kreditstatus (Default)",
+    x = "Default (Kreditausfall)",
+    y = "Anzahl Kunden"
+  ) +
+  theme_minimal()
+
+# Housing
+bank.additional.full %>%
+  count(housing) %>%
+  ggplot(aes(x = fct_reorder(housing, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung Wohnkredit-Status",
+    x = "Wohnkredit",
+    y = "Anzahl Kunden"
+  ) +
+  theme_minimal()
+
+# Loan
+bank.additional.full %>%
+  count(loan) %>%
+  ggplot(aes(x = fct_reorder(loan, n), y = n)) +
+  geom_col(fill = "#4C78A8", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Verteilung Privatkredit-Status",
+    x = "Privatkredit",
+    y = "Anzahl Kunden"
+  ) +
+  theme_minimal()
+

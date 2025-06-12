@@ -1,5 +1,9 @@
 # Capstone Projekt – Bank Marketing (XAI mit R)
 
+## 📄 Dataset Introduction
+
+This project uses the Bank Marketing Dataset from a Portuguese banking institution. The data contains detailed information on clients contacted during a direct marketing campaign (phone calls). The goal of the campaign was to encourage clients to subscribe to a bank term deposit.
+
 ## ✅ TODOs (nach Phase)
 
 ### 1. Exploratory Data Analysis (EDA)
