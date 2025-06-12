@@ -3,7 +3,7 @@
 ## ✅ TODOs (nach Phase)
 
 ### 1. Exploratory Data Analysis (EDA)
-- [ ] Daten laden & inspizieren (`data/raw`)
+- [X] Daten laden & inspizieren (`data/raw`)
 - [ ] Bereinigung und Transformation (`scripts/data_cleaning.R`)
 - [ ] Visualisierungen zur Mustererkennung (`ggplot2`, `DataExplorer`, etc.)
 - [ ] Ergebnisse dokumentieren in `01_EDA.Rmd`
