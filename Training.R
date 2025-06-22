@@ -2,16 +2,15 @@ library(tidyverse)
 library(janitor)
 library(tidymodels)
 
-
-bdata <- read_csv("data/bank/bank.csv")
-
+bdata <- readRDS("data/processed/bdata.rds")
+#bdata <- read_delim("data/bank/bank-full.csv", delim = ";")
 
 
 bank_data_cleaned <- bdata %>%
   mutate(across(where(is.character), ~na_if(., "unknown")))
 
-cleahome_split <- initial_split(bank_data_cleaned, 
-                            prop = 0.7, 
+home_split <- initial_split(bank_data_cleaned, 
+                            prop = 0.8, 
                             strata = "y")
 
 home_training <- home_split %>%
@@ -22,23 +21,33 @@ home_test <- home_split %>%
   testing()
 
 model <- decision_tree() %>% 
-  # Set the model engine
+  # Set Decision Tree
   set_engine('rpart') %>% 
-  # Set the model mode
+  # Set classes
   set_mode('classification')
 
 rezept <- recipe(y ~ ., data = home_training) %>%
   step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
   step_normalize(all_numeric_predictors())
 
 wf <- workflow() %>%
   add_model(model) %>%
   add_recipe(rezept)
 
-fit -> fit(wf, data = home_training)
+fit <- fit(wf, data = home_training)
 
 preds <- predict(fit, new_data = home_test, type = "class")
 
-conf_mat(results, truth = truth, estimate = prediction)
+
+results <- home_test %>%
+  select(y) %>%
+  bind_cols(preds)
+
+results <- results %>%
+  mutate(y = as.factor(y))
+
+conf_mat(results, truth = y, estimate = .pred_class)
+
 
 
