@@ -5,7 +5,7 @@ library(tidymodels)
 # Daten laden
 bdata <- read_delim("data/bank/bank-full.csv", delim = ";")
 
-# Dummy-Feature für Zielvariable vorab
+# Dummy-Feature für Zielvariable vorab (für Encoding)
 bdata <- bdata %>%
   mutate(
     y_numeric = ifelse(y == "yes", 1, 0)
@@ -16,9 +16,10 @@ poutcome_means <- bdata %>%
   group_by(poutcome) %>%
   summarise(poutcome_numeric = mean(y_numeric, na.rm = TRUE))
 
-# Haupt-Feature-Engineering
+# Haupt-Feature-Engineering inkl. aller numerischen Variablen für RandomForest
 bdata <- bdata %>%
   mutate(
+    # Faktoren
     marital = as.factor(marital),
     job = as.factor(job),
     education = as.factor(education),
@@ -30,6 +31,10 @@ bdata <- bdata %>%
     poutcome = as.factor(poutcome),
     y = as.factor(y),
     
+    # Zielvariable als binärer Faktor für RandomForest
+    y_bin = factor(ifelse(y == "yes", "yes", "no")),
+    
+    # Numerische Features
     job_numeric = ifelse(job == "unemployed", 1, 0),
     marital_numeric = case_when(
       marital == "single" ~ 0,
@@ -48,6 +53,8 @@ bdata <- bdata %>%
     loan_numeric = ifelse(loan == "yes", 1, 0),
     log_balance = log(abs(balance) + 1),
     pdays_category = as.factor(ifelse(pdays == -1, "no_previous_contact", "had_contact")),
+    
+    # Weitere strukturierende Features
     age_group = cut(age, breaks = c(0, 25, 45, 65, 100), right = FALSE),
     contact_season = case_when(
       month %in% c("mar", "apr", "may") ~ "spring",
