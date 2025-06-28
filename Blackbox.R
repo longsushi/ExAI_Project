@@ -1,28 +1,41 @@
 library(randomForest)
 library(dplyr)
+library(readr)
 
 # Daten laden
-bdata <- read_delim("data/bank/bank-full.csv", delim = ";")
+bdata <- readRDS("data/processed/bdata.rds")
 
-# Dummy-Feature: Zielvariable binär
-bdata$y_bin <- ifelse(bdata$y == "yes", 1, 0)
+# Zielvariable binär
+bdata$y_bin <- factor(ifelse(bdata$y == "yes", "yes", "no"))
 
-# Beispiel: Nur numerische Features nehmen (vereinfachte Version!)
+# Feature Engineering – Fokus auf informative numerische Variablen
 bdata_clean <- bdata %>%
-  mutate(job_unemployed = ifelse(job == "unemployed", 1, 0)) %>%
-  select(age, balance, duration, campaign, job_unemployed, y_bin)
+  mutate(
+    job_unemployed = ifelse(job == "unemployed", 1, 0),
+    has_contact_before = ifelse(pdays == -1, 0, 1),
+    duration_log = log(duration + 1),
+    balance_log = log(abs(balance) + 1),
+    campaign_intensity = campaign * duration,
+    contact_summer = ifelse(month %in% c("jun", "jul", "aug"), 1, 0)
+  ) %>%
+  select(
+    age, balance_log, duration_log, campaign, campaign_intensity,
+    job_unemployed, has_contact_before, contact_summer,
+    y_bin
+  )
 
+# Trainings-/Test-Split
 set.seed(123)
 sample_idx <- sample(nrow(bdata_clean), 0.8 * nrow(bdata_clean))
 train <- bdata_clean[sample_idx, ]
 test <- bdata_clean[-sample_idx, ]
 
-rf_model <- randomForest(y_bin ~ ., data = train, ntree = 100, mtry = 2, importance = TRUE)
+# Modell trainieren
+rf_model <- randomForest(y_bin ~ ., data = train, ntree = 100, mtry = 3, importance = TRUE)
 
-preds <- predict(rf_model, newdata = test, type = "response")
+# Vorhersage
+preds <- predict(rf_model, newdata = test)
 
-# Konfusionsmatrix
-table(Predicted = preds, Actual = test$y_bin)
-
-# Genauigkeit berechnen
-mean(preds == test$y_bin)
+# Konfusionsmatrix & Genauigkeit
+print(table(Predicted = preds, Actual = test$y_bin))
+cat("Genauigkeit:", mean(preds == test$y_bin), "\n")
