@@ -8,17 +8,17 @@ This project uses the Bank Marketing Dataset from a Portuguese banking instituti
 
 ### 1. Exploratory Data Analysis (EDA)
 - [X] Daten laden & inspizieren
-- [ ] Bereinigung und Transformation
-- [ ] Visualisierungen zur Mustererkennung
+- [X] Bereinigung und Transformation
+- [X] Visualisierungen zur Mustererkennung
 
 ### 2. Feature Engineering
-- [ ] Neue Merkmale entwickeln (z. B. binär, kategorisch, aggregiert)
-- [ ] Skalierung und Encoding
+- [X] Neue Merkmale entwickeln (z. B. binär, kategorisch, aggregiert)
+- [X] Skalierung und Encoding
 
 ### 3. Machine Learning Workflow
-- [ ] Modelle trainieren und tunen (z. B. Logistic Regression, Random Forest)
-- [ ] Vergleich intrinsisch interpretierbarer Modelle vs. Black-Box-Modelle
-- [ ] Evaluierung: Precision, Recall, F1, ROC AUC
+- [X] Modelle trainieren und tunen (z. B. Logistic Regression, Random Forest)
+- [X] Vergleich intrinsisch interpretierbarer Modelle vs. Black-Box-Modelle
+- [X] Evaluierung: Precision, Recall, F1, ROC AUC
 
 ### 4. Explainable AI (XAI)
 #### Local Methods
