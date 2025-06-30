@@ -62,6 +62,24 @@ print(conf_mat(results, truth = y, estimate = .pred_class))
 accuracy_value <- mean(results$.pred_class == results$y)
 cat("Genauigkeit (Accuracy):", round(accuracy_value, 4), "\n")
 
+# ====== Visualisierungen hinzugefügt (ab hier eingefügt) ======
+# Balkendiagramm: Vorhergesagte vs. tatsächliche Klassen
+ggplot(results, aes(x = y, fill = .pred_class)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Vorhergesagte vs. Tatsächliche Klassen",
+       x = "Tatsächliche Klasse",
+       fill = "Vorhergesagte Klasse") +
+  theme_minimal()
+
+# ROC-Kurve (falls Wahrscheinlichkeiten vorhanden)
+if (".pred_yes" %in% names(results)) {
+  library(pROC)
+  roc_obj <- roc(results$y, results$.pred_yes, levels = c("no", "yes"))
+  plot(roc_obj, main = "ROC-Kurve", col = "blue")
+  cat("AUC:", round(auc(roc_obj), 4), "\n")
+}
+# ====== Visualisierungen Ende ======
+
 
 
 
