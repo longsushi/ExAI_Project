@@ -22,13 +22,13 @@ This project uses the Bank Marketing Dataset from a Portuguese banking instituti
 
 ### 4. Explainable AI (XAI)
 #### Local Methods
-- [ ] SHAP-Werte berechnen (`DALEX`, `iml`)
-- [ ] ICE-Plots, Kontrafaktische Erklärungen (`counterfactuals`)
+- [X] SHAP-Werte berechnen (`DALEX`, `iml`)
+- [X] ICE-Plots, Kontrafaktische Erklärungen (`counterfactuals`)
 
 #### Global Methods
-- [ ] Permutation Feature Importance
-- [ ] Partial Dependence Plots
-- [ ] Global Surrogate Model trainieren
+- [X] Permutation Feature Importance
+- [X] Partial Dependence Plots
+- [X] Global Surrogate Model trainieren
 
 ### 5. Dokumentation und Abgabe
 - [ ] Abschlussbericht erstellen (`reports/final_report.pdf`)
