@@ -3,9 +3,13 @@ library(dplyr)
 library(readr)
 
 
-# Daten laden
-bdata <- readRDS("data/processed/bdata.rds")
 
+
+bdata_clean <- readRDS("data/processed/bdata.rds")
+
+
+# Feature Engineering – Fokus auf informative numerische Variablen
+ 
 
 # Trainings-/Test-Split
 set.seed(123)
@@ -14,16 +18,16 @@ train <- bdata_clean[sample_idx, ]
 test <- bdata_clean[-sample_idx, ]
 
 # Modell trainieren
-rf_model <- randomForest(y_bin ~ ., data = train, ntree = 100, mtry = 3, importance = TRUE, classwt = c("no" = 1, "yes" = 50))
+rf_model <- randomForest(y_bin ~ ., data = train, ntree = 100, mtry = 3, importance = TRUE)
 
 # Vorhersage
-rf_probs <- predict(rf_model, newdata = test, type = "prob")
-rf_pred_custom <- ifelse(rf_probs[, "yes"] > 0.3, "yes", "no")
+preds <- predict(rf_model, newdata = test)
 
 # Konfusionsmatrix & Genauigkeit
-print(table(Predicted = rf_pred_custom, Actual = test$y_bin))
+print(table(Predicted = preds, Actual = test$y_bin))
+cat("Genauigkeit:", mean(preds == test$y_bin), "\n")
 
-cat("Genauigkeit:", mean(rf_pred_custom == test$y_bin), "\n")
+
 
 # ====== Visualisierungen hinzugefügt (ab hier eingefügt) ======
 library(ggplot2)

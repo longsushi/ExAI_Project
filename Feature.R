@@ -99,7 +99,7 @@ bdataend1 <- bdataend %>%
   ) %>%
   drop_na()
 
-
+print(bdataend1)
 
 # Speichern
 dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
