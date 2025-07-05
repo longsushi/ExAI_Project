@@ -1,16 +1,29 @@
 # load required packages
-library(tidymodels)
+library(randomForest)
 library(vip)
+library(ggplot2)
 
-# extract the trained decision tree model
-model_object <- extract_fit_parsnip(fit)
+# load the trained random forest model from blackbox.R
+rf_model <- readRDS("model/rf_model.rds")
 
-# plot the top 10 most important features. We only display the top 10 for better readability
-vip_plot <- vip(model_object$fit, num_features = 10) +
-  ggtitle("Feature Importance (Decision Tree Model)")
+# define custom prediction wrapper for class probabilities
+pred_wrapper <- function(object, newdata) {
+  predict(object, newdata, type = "prob")[, "yes"]
+}
+# calculate permutation feature importance using the random forest model
+vip_plot <- vip(
+  object = rf_model,
+  method = "permute",
+  train = rf_model$training,
+  target = "y_bin",  # Deine Zielvariable
+  metric = "roc_auc",  # Alternativ z. B. "accuracy"
+  pred_wrapper = pred_wrapper,
+  nsim = 10
+) +
+  ggtitle("Permutation Feature Importance (Random Forest Model)")
 
 # show the plot
 print(vip_plot)
 
-# save the plot to the graphics folder
-ggsave("Grafiken/ExAI/Global/feature_importance_dt.png", vip_plot, width = 8, height = 5)
+# save the plot
+ggsave("Grafiken/ExAI/Global/permutation_importance_rf.png", vip_plot, width = 8, height = 5)

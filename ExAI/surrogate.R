@@ -1,36 +1,41 @@
 # load required packages
 library(tidymodels)
-library(rpart.plot)  # for visualizing the decision tree
+library(rpart.plot)
 
-# extract the trained random forest model
-rf_model_object <- extract_fit_parsnip(rf_fit)
+# load the trained random forest model
+rf_model <- readRDS("model/rf_model.rds")
 
-# preprocess the training data
-train_baked <- bake(prep(recipe_rf), new_data = train)
+# use the training data from the RF model itself
+train_data <- rf_model$training
 
-# get predicted probabilities for the "yes" class
-pred_probs <- predict(rf_model_object, train_baked, type = "prob")$.pred_yes
+# get predicted probabilities from the black-box RF model
+pred_probs <- predict(rf_model, newdata = train_data, type = "prob")[, "yes"]
 
-# combine the data and predictions
-surrogate_data <- train_baked %>%
+# remove the true target variable y_bin and combine with predictions
+surrogate_data <- train_data %>%
+  select(-y_bin) %>%
   mutate(pred_prob = pred_probs)
 
-# define a simple decision tree to mimic the random forest
-tree_spec <- decision_tree() %>%
+# define a simple interpretable model (decision tree)
+tree_spec <- decision_tree(
+  cost_complexity = 0.01,
+  tree_depth = 3
+) %>%
   set_engine("rpart") %>%
   set_mode("regression")
 
-# fit the surrogate model using the predicted probabilities
+# train the surrogate model to approximate the RF predictions
 surrogate_fit <- tree_spec %>%
   fit(pred_prob ~ ., data = surrogate_data)
 
-# visualize the surrogate decision tree
+# visualize the surrogate tree
 rpart.plot(surrogate_fit$fit,
-           main = "Surrogate Tree: Key Drivers of RF Predictions",
-           type = 2, extra = 101, under = TRUE)
+           main = "Surrogate Tree: Key Drivers of Random Forest Predictions",
+           type = 4, extra = 101, digits = 2, roundint = FALSE, under = TRUE)
 
 # save the plot to the graphics folder
-png("Grafiken/ExAI/Local/surrogate_tree_rf.png", width = 800, height = 600)
+png("Grafiken/ExAI/Global/surrogate_tree_rf.png", width = 800, height = 600)
 rpart.plot(surrogate_fit$fit,
-           main = "Surrogate Tree: Key Drivers of RF Predictions")
+           main = "Surrogate Tree: Key Drivers of Random Forest Predictions",
+           type = 4, extra = 101, digits = 2, roundint = FALSE, under = TRUE)
 dev.off()

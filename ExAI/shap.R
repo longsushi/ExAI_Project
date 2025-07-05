@@ -3,44 +3,44 @@ library(tidyverse)
 library(DALEX)
 library(iBreakDown)
 
-# get the trained random forest model
-rf_model_object <- extract_fit_parsnip(fit)
+# load the trained random forest model
+rf_model <- readRDS("model/rf_model.rds")
 
-# prepare the training data with dummy variables
-train_baked <- bake(prep(rezept), new_data = home_training)
+# load the training data used in blackbox.R
+bdata_clean <- readRDS("data/processed/bdata.rds")
 
-# to keep the duration of the calculation moderate, we only pick a smaller random sample of 200 rows. 
-# for more accurate SHAP values, increase this number, but this will have an impact on the computing time.
-set.seed(123)  
-bg_idx <- sample(seq_len(nrow(train_baked)), 200)
-background <- train_baked[bg_idx, ]
-background_y <- as.numeric(home_training$y_bin == "yes")[bg_idx]
+# use 2000 background observations to ensure stable SHAP values estimation
+set.seed(123)
+bg_idx <- sample(seq_len(nrow(bdata_clean)), 2000)
+background <- bdata_clean[bg_idx, ]
+background_y <- as.numeric(background$y_bin == "yes")
 
-# Make an explainer object for the model with the background data
+# make an explainer object for the model with the background data
 explainer_rf <- explain(
-  model = rf_model_object,
-  data = background,
+  model = rf_model,
+  data = background %>% select(-y_bin),
   y = background_y,
-  label = "SHAP Explanation for One Observation (Random Forest, BG = 200)",
+  label = "SHAP Explanation RF",
   verbose = FALSE
 )
 
 # choose one observation to explain
-one_obs <- train_baked %>% slice(5)
+one_obs <- bdata_clean %>% select(-y_bin) %>% slice(5)
 
-# calculate the SHAP values for that observation. B = 5 means we do 5 permutations to estimate the values.
-# you can increase B for more precise estimates, but then it will take longer.
+# calculate the SHAP values for that observation
 shap_rf <- predict_parts(
   explainer = explainer_rf,
   new_observation = one_obs,
   type = "shap",
   N = 50,
-  B = 5
+  B = 30
 )
 
 # make the plot for the SHAP values and print it
-shap_plot <- plot(shap_rf)
+shap_plot <- plot(shap_rf, max_vars = 10)
 print(shap_plot)
 
 # save the plot to the graphics folder
-ggsave("Grafiken/ExAI/Local/shap_rf_obs1.png", plot = shap_plot, width = 8, height = 6)
+dir.create("Grafiken/ExAI/Local", recursive = TRUE, showWarnings = FALSE)
+ggsave("Grafiken/ExAI/Local/shap_rf_obs5.png", plot = shap_plot, width = 8, height = 6)
+

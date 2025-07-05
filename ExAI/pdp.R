@@ -1,26 +1,47 @@
 # load required packages
-library(tidymodels)
+library(randomForest)
 library(pdp)
+library(ggplot2)
+library(scales)  
 
-# create a partial dependence plot for the variable 'month_success_rate'
-pdp_month <- partial(
-  object      = extract_fit_parsnip(fit)$fit,               # trained decision tree model
-  pred.var    = "month_success_rate",                       # feature of interest
-  train       = bake(prep(rezept), new_data = home_training),  # processed training data
-  prob        = TRUE,                                       # output probabilities
-  which.class = "yes"                                       # focus on probability of the yes class
+# load the trained random forest model from blackbox.R
+rf_model <- readRDS("model/rf_model.rds")
+
+# use the training data from the model itself
+train_data <- rf_model$training
+
+# create a partial dependence plot object for the variable 'balance'
+pdp_balance <- partial(
+  object      = rf_model,         
+  pred.var    = "balance",        
+  train       = train_data,       
+  prob        = TRUE,             
+  which.class = "yes",            
+  plot        = FALSE
 )
 
-# plot the result
-plot(pdp_month,
-     main = "Effect of Month Success Rate on P('yes')",
-     xlab = "Success Rate in Current Month",
-     ylab = "Predicted Probability for 'Yes'")
+# convert to data frame for ggplot
+pdp_df <- as.data.frame(pdp_balance)
 
-# save the plot to the Graphics folder
-png("Grafiken/ExAI/Global/pdp_month_success_dt.png", width = 800, height = 600)
-plot(pdp_month,
-     main = "Effect of Month Success Rate on P('yes')",
-     xlab = "Success Rate in Current Month",
-     ylab = "Predicted Probability for 'Yes'")
-dev.off()
+# create ggplot with readable axis labels
+pdp_plot <- ggplot(pdp_df, aes(x = balance, y = yhat)) +
+  geom_line(linewidth = 1, color = "steelblue") +
+  labs(
+    title = "PDP: Effect of Account Balance on prediction 'yes'",
+    x     = "Account Balance",
+    y     = "Predicted Probability for 'Yes'"
+  ) +
+  scale_x_continuous(labels = label_comma()) +
+  theme_minimal()
+
+# show the plot
+print(pdp_plot)
+
+# save the plot to the graphics folder
+ggsave(
+  filename = "Grafiken/ExAI/Global/pdp_balance_rf.png",
+  plot     = pdp_plot,
+  width    = 8,
+  height   = 5
+)
+
