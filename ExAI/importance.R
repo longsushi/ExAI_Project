@@ -6,6 +6,9 @@ library(ggplot2)
 # load the trained random forest model from blackbox.R
 rf_model <- readRDS("model/rf_model.rds")
 
+# extract the training data
+train_data <- rf_model$training
+
 # define custom prediction wrapper for class probabilities
 pred_wrapper <- function(object, newdata) {
   predict(object, newdata, type = "prob")[, "yes"]
@@ -14,9 +17,9 @@ pred_wrapper <- function(object, newdata) {
 vip_plot <- vip(
   object = rf_model,
   method = "permute",
-  train = rf_model$training,
-  target = "y_bin",  # Deine Zielvariable
-  metric = "roc_auc",  # Alternativ z. B. "accuracy"
+  train = train_data,
+  target = "y_bin",  
+  metric = "roc_auc",  
   pred_wrapper = pred_wrapper,
   nsim = 10
 ) +

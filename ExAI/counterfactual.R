@@ -5,10 +5,10 @@ library(randomForest)
 rf_model <- readRDS("model/rf_model.rds")
 
 # use the training data from the model itself
-train_interp <- rf_model$training
+train_data <- rf_model$training
 
 # select one example to explain
-one_obs <- train_interp %>% slice(17)
+one_obs <- train_data %>% slice(17)
 
 # define a prediction function for the class yes
 predict_prob <- function(new_data) {
@@ -20,7 +20,7 @@ original_prob <- predict_prob(one_obs)
 
 # create a counterfactual by toggling 'housing_numeric'
 cf_obs <- one_obs
-cf_obs$housing_numeric <- ifelse(cf_obs$housing_numeric == 1, 0, 1)  # using real units from train_interp
+cf_obs$housing_numeric <- ifelse(cf_obs$housing_numeric == 1, 0, 1)  
 
 # calculate prediction for the counterfactual observation
 cf_prob <- predict_prob(cf_obs)

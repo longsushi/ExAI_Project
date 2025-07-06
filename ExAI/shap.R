@@ -1,7 +1,6 @@
 # load required packages
 library(tidyverse)
 library(DALEX)
-library(iBreakDown)
 
 # load the trained random forest model
 rf_model <- readRDS("model/rf_model.rds")
@@ -41,6 +40,5 @@ shap_plot <- plot(shap_rf, max_vars = 10)
 print(shap_plot)
 
 # save the plot to the graphics folder
-dir.create("Grafiken/ExAI/Local", recursive = TRUE, showWarnings = FALSE)
 ggsave("Grafiken/ExAI/Local/shap_rf_obs5.png", plot = shap_plot, width = 8, height = 6)
 

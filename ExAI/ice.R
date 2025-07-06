@@ -7,26 +7,26 @@ library(ggplot2)
 rf_model <- readRDS("model/rf_model.rds")
 
 # extract the training data 
-train_baked <- rf_model$training
+train_data <- rf_model$training
 
 # compute ICE curves for the feature 'balance'
 set.seed(42)
 ice_balance <- partial(
-  object      = rf_model,           
-  pred.var    = "balance",          
-  ice         = TRUE,               
-  center      = FALSE,              
-  train       = train_baked,        
-  prob        = TRUE,               
+  object = rf_model,           
+  pred.var = "balance",          
+  ice = TRUE,               
+  center = FALSE,              
+  train = train_data,        
+  prob = TRUE,               
   which.class = "yes",              
-  plot        = FALSE               
+  plot = FALSE
 )
 
 # if .id is missing, create it so grouping works
 if (!".id" %in% names(ice_balance)) {
-  grid_vals     <- unique(ice_balance$balance)
-  n_grid        <- length(grid_vals)
-  ice_balance$.id   <- rep(seq_len(nrow(train_baked)), each = n_grid)
+  grid_vals <- unique(ice_balance$balance)
+  n_grid <- length(grid_vals)
+  ice_balance$.id <- rep(seq_len(nrow(train_data)), each = n_grid)
 }
 
 # sample 100 ICE curves to keep the plot readable
@@ -38,10 +38,10 @@ ice_sample <- subset(ice_balance, .id %in% sample_ids)
 ice_plot <- ggplot(ice_sample, aes(x = balance, y = yhat, group = .id)) +
   geom_line(alpha = 0.2) +
   labs(
-    title = "ICE: Effect of Balance on Predicted prediction 'yes'",
-    x     = "Balance",
-    y     = "Predicted Probability"
-  )
+    title = "ICE: Effect of Balance on Predicted Probability for 'Yes'",
+    x = "Balance",
+    y = "Predicted Probability"
+)
 
 # display the ICE plot
 print(ice_plot)
@@ -49,8 +49,8 @@ print(ice_plot)
 # save the ICE plot to the graphics folder
 ggsave(
   filename = "Grafiken/ExAI/Local/ice_balance_rf.png",
-  plot     = ice_plot,
-  width    = 8,
-  height   = 6
+  plot = ice_plot,
+  width = 8,
+  height = 6
 )
 
