@@ -1,6 +1,5 @@
-
-# # Übersicht Alter
-# Metriken berechnen für Alter
+# # Age Overview
+# Calculate metrics for age
 age_stats <- bank.additional.full %>%
   summarise(
     mean = mean(age, na.rm = TRUE),
@@ -10,14 +9,14 @@ age_stats <- bank.additional.full %>%
   ) %>%
   pivot_longer(everything(), names_to = "type", values_to = "value")
 
-# Plot mit Legende
+# Plot with legend
 ggplot(bank.additional.full, aes(x = age)) +
   geom_histogram(bins = 30, fill = "#4C78A8", color = "white", alpha = 0.85) +
   
   geom_vline(data = age_stats, aes(xintercept = value, color = type, linetype = type), size = 1.2) +
   
   scale_color_manual(
-    name = "Statistik",
+    name = "Statistic",
     values = c(
       mean = "#E45756",
       median = "#72B7B2",
@@ -25,14 +24,14 @@ ggplot(bank.additional.full, aes(x = age)) +
       q75 = "#FF9DA6"
     ),
     labels = c(
-      mean = "Mittelwert",
+      mean = "Mean",
       median = "Median",
-      q25 = "1. Quartil",
-      q75 = "3. Quartil"
+      q25 = "1st Quartile",
+      q75 = "3rd Quartile"
     )
   ) +
   scale_linetype_manual(
-    name = "Statistik",
+    name = "Statistic",
     values = c(
       mean = "dashed",
       median = "solid",
@@ -40,18 +39,18 @@ ggplot(bank.additional.full, aes(x = age)) +
       q75 = "dotted"
     ),
     labels = c(
-      mean = "Mittelwert",
+      mean = "Mean",
       median = "Median",
-      q25 = "1. Quartil",
-      q75 = "3. Quartil"
+      q25 = "1st Quartile",
+      q75 = "3rd Quartile"
     )
   ) +
   
   labs(
-    title = "Altersverteilung der Kunden mit statistischen Kennwerten",
-    subtitle = "Histogramm mit Mittelwert, Median und Quartilen",
-    x = "Alter",
-    y = "Anzahl Kunden"
+    title = "Age Distribution of Prospects with Key Statistics",
+    subtitle = "Histogram with Mean, Median, and Quartiles",
+    x = "Age",
+    y = "Number of Prospects"
   ) +
   theme_minimal(base_size = 14) +
   theme(
@@ -63,84 +62,80 @@ ggplot(bank.additional.full, aes(x = age)) +
     legend.title = element_text(face = "bold")
   )
 
-# Verteilung der Berufe
+# Job distribution
 bank.additional.full %>%
   count(job) %>%
   ggplot(aes(x = fct_reorder(job, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung der Berufe",
-    x = "Beruf",
-    y = "Anzahl"
+    title = "Distribution of Job Roles",
+    x = "Job",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
 
-# Verteilung des Familienstands
+# Marital status distribution
 bank.additional.full %>%
   count(marital) %>%
   ggplot(aes(x = fct_reorder(marital, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung des Familienstands",
-    x = "Familienstand",
-    y = "Anzahl"
+    title = "Distribution of Marital Status",
+    x = "Marital Status",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
 
-# Übersicht Education
-
+# Education overview
 bank.additional.full %>%
   count(education) %>%
   ggplot(aes(x = fct_reorder(education, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung des Bildungsstands",
-    x = "Bildungsstand",
-    y = "Anzahl"
+    title = "Distribution of Education Levels",
+    x = "Education Level",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
 
-# Verteilung des Kreditstatus
+# Credit default status
 bank.additional.full %>%
   count(default) %>%
   ggplot(aes(x = fct_reorder(default, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung des Kreditstatus (Default)",
-    x = "Default (Kreditausfall)",
-    y = "Anzahl Kunden"
+    title = "Distribution of Credit Default Status",
+    x = "Credit Default (Yes/No)",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
 
-# Housing
+# Housing loan
 bank.additional.full %>%
   count(housing) %>%
   ggplot(aes(x = fct_reorder(housing, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung Wohnkredit-Status",
-    x = "Wohnkredit",
-    y = "Anzahl Kunden"
+    title = "Distribution of Housing Loan Status",
+    x = "Housing Loan",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
 
-# Loan
+# Personal loan
 bank.additional.full %>%
   count(loan) %>%
   ggplot(aes(x = fct_reorder(loan, n), y = n)) +
   geom_col(fill = "#4C78A8", alpha = 0.85) +
   coord_flip() +
   labs(
-    title = "Verteilung Privatkredit-Status",
-    x = "Privatkredit",
-    y = "Anzahl Kunden"
+    title = "Distribution of Personal Loan Status",
+    x = "Personal Loan",
+    y = "Number of Prospects"
   ) +
   theme_minimal()
-
-
-
